@@ -54,13 +54,8 @@ typedef struct {
 
 void print_message(const void *message, const proto_desc_t *desc, int indent);
 
-void SimpleMessage1_print(SimpleMessage1 *msg, uint8_t level);
 extern const proto_desc_t SimpleMessage1_desc[];
-void SimpleMessage2_print(SimpleMessage2 *msg, uint8_t level);
 extern const proto_desc_t SimpleMessage2_desc[];
-void SimpleNested_print(SimpleNested *msg, uint8_t level);
 extern const proto_desc_t SimpleNested_desc[];
-void SimpleRepeated_print(SimpleRepeated *msg, uint8_t level);
 extern const proto_desc_t SimpleRepeated_desc[];
-void SimpleOneof_print(SimpleOneof *msg, uint8_t level);
 extern const proto_desc_t SimpleOneof_desc[];

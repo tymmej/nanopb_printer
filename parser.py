@@ -37,19 +37,6 @@ def print_code(text, indent = 0):
     text = ["\t" * indent + l + "\n" for l in text]
     return ''.join(text)
 
-def indent_print(indent = 0, offset = None):
-    if offset is None:
-        offset = ""
-    elif offset > 0:
-        offset = " + %d" % offset
-    elif offset < 0:
-        offset = " - %d" % -offset
-    return print_code("""
-                    for (int j = 0; j < level%s; j++) {
-                        printf("\\t");
-                    }
-                    """ % offset, indent)
-
 def print_field(message, name, field, indent, offset, optional = False, repeated = False, one_of = None, submessage=None):
     desc_text = ""
     label = "LABEL_REQUIRED"
@@ -73,57 +60,35 @@ def print_field(message, name, field, indent, offset, optional = False, repeated
         one_of = "%s." % one_of
     else:
         one_of = ""
-    c_text = indent_print(indent, offset)
     if submessage is not None:
         desc_text += print_code("""
                                 {.field = FIELD_MESSAGE, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .message.desc = %s_desc%s},
                                 """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, submessage, oneof_desc), indent)
-        return (c_text, desc_text)
+        return desc_text
     if field[0] == "TYPE_ENUM":
-        c_text += print_code("""
-                            printf("%s=%%s\\n", get_enum_text(%s_desc, msg->%s%s%s));
-                            """ % (name, field[2], one_of, name, repeated), indent)
         desc_text += print_code("""
                             {.field = FIELD_ENUM, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .enum_type.desc = %s_desc%s},
                             """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, field[2], oneof_desc), indent)
     elif field[0] == "TYPE_BYTES":
-        c_text += print_code("""
-                            print_bytes("%s", msg->%s.bytes, msg->%s%s%s.size);
-                            """ % (name, name, one_of, name, repeated), indent)
         desc_text += print_code("""
                             {.field = FIELD_BYTES, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s%s},
                             """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, oneof_desc), indent)
     else:
-        c_text += print_code("""
-                            printf("%s=%%"%s"\\n", msg->%s%s%s);
-                            """ % (name, _proto_type_to_c[field[0]], one_of, name, repeated), indent)
         desc_text += print_code("""
                             {.field = FIELD_NORMAL, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .format = %s%s},
                             """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, _proto_type_to_c[field[0]], oneof_desc), indent)
-    return (c_text, desc_text)
+    return desc_text
 
 def parse_msg(message):
     c_text = ""
     h_text = ""
     desc_text = ""
-    h_text += print_code("""
-                        void %s_print(%s *msg, uint8_t level);
-                        """ % (message[0], message[0]))
     desc_text += print_code("""
                             const proto_desc_t %s_desc[] = {
                             """ % message[0])
     h_text += print_code("""
                         extern const proto_desc_t %s_desc[];
                         """ % message[0])
-    c_text += print_code("""
-                        void
-                        %s_print(%s *msg, uint8_t level)
-                        {
-                        """ % (message[0], message[0]))
-    c_text += indent_print(indent = 1)
-    c_text += print_code("""
-                        printf("%s: \\n");
-                        """ % message[0], indent = 1)
 
     oneofs = []
     for name, field in message[1]._asdict().items():
@@ -133,44 +98,15 @@ def parse_msg(message):
         elif isinstance(field, module_parser.Repeated):
             if type(field[0]) is not tuple:
                 message_name = type(field[0]).__name__
-            c_text += print_code("""
-                                for (pb_size_t i = 0; i < msg->%s_count; i++) {
-                                """ % name, indent = 1)
             if type(field[0]) is tuple: #repetead field is normal
-                new_c, new_desc = print_field(message[0], name, field[0], 2, 1, repeated = True, one_of = None)
-                c_text += new_c
+                new_desc = print_field(message[0], name, field[0], 2, 1, repeated = True, one_of = None)
                 desc_text += new_desc
             else: #repeated field is message
-                c_text += print_code("""
-                                    %s_print(&msg->%s[i], level + 1);
-                                    """ % (message_name, name), indent = 2)
-            
-                new_c, new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = True, submessage=message_name)
-                #c_text += new_c
+                new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = True, submessage=message_name)
                 desc_text += new_desc
-            c_text += print_code("""
-                                }
-                                """, indent = 1)
         elif isinstance(field[1], tuple):
             one_of = field_in_of(name, oneofs)
-            if one_of:
-                c_text += print_code("""
-                                    if (msg->which_%s == %s_%s_tag) {
-                                    """ % (one_of, message[0], name), indent = 1)
-                c_text += indent_print(indent = 2, offset = 1)
-                c_text += print_code("""
-                                    %s_print(&msg->%s.%s, level + 1);
-                                    """ % (type(field).__name__, one_of, name), indent = 2)
-                c_text += print_code("""
-                                    }
-                                    """, indent = 1)
-            else:
-                c_text += print_code("""
-                                    %s_print(&msg->%s, level + 1);
-                                    """ % (type(field).__name__, name), indent = 1)
-            
-            new_c, new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = False, one_of = one_of, submessage=type(field).__name__)
-            #c_text += new_c
+            new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = False, one_of = one_of, submessage=type(field).__name__)
             desc_text += new_desc
         else:
             one_of = field_in_of(name, oneofs)
@@ -178,32 +114,12 @@ def parse_msg(message):
                 print(field)
                 raise Exception("Unknown label")
             elif one_of:
-                c_text += print_code("""
-                                    if (msg->which_%s == %s_%s_tag) {
-                                    """ % (one_of, message[0], name), indent = 1)
-                new_c, new_desc = print_field(message[0], name, field, 2, 1, repeated = False, one_of = one_of)
-                c_text += new_c
+                new_desc = print_field(message[0], name, field, 2, 1, repeated = False, one_of = one_of)
                 desc_text += new_desc
-                c_text += "\t}\n"
                 continue
-            elif field[1] == 'LABEL_OPTIONAL':
-                c_text += print_code("""
-                                    if (msg->has_%s) {
-                                    """ % name, indent = 1)
 
-            new_c, new_desc = print_field(message[0], name, field, 1, 1, optional = field[1] == 'LABEL_OPTIONAL', repeated = False, one_of = None)
-            c_text += new_c
+            new_desc = print_field(message[0], name, field, 1, 1, optional = field[1] == 'LABEL_OPTIONAL', repeated = False, one_of = None)
             desc_text += new_desc
-            
-            if field[1] == 'LABEL_OPTIONAL':
-                c_text += print_code("""
-                                    }
-                                    """, indent = 1)
-
-    c_text += print_code("""
-                        }
-
-                        """)
 
     desc_text += print_code("""
                                 {.field = FIELD_LAST},
@@ -211,7 +127,7 @@ def parse_msg(message):
                             
                             """)
 
-    return (desc_text + c_text, h_text)
+    return (desc_text, h_text)
 
 def parse_enum(enum):
     c_text = ""
