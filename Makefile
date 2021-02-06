@@ -17,4 +17,12 @@ $(TARGET): $(OBJS)
 clean:
 	$(RM) $(TARGET) $(OBJS) $(DEPS)
 
+proto:
+	python3 nanopb/generator/nanopb_generator.py simple.proto
+	mv simple.pb.* ./src
+	protoc -I=. --python_out=. simple.proto
+
+parser:
+	python3 parser.py simple
+
 -include $(DEPS)

@@ -31,10 +31,11 @@ main(int argc, char *argv[])
     simplenested.enum1 = SimpleEnum1_ONE;
     simplenested.enum2 = SimpleEnum2_TWOTWO;
     simplerepeated.text_count = 2;
-    simplerepeated.message_count = 1;
+    simplerepeated.message_count = 2;
     strcpy(simplerepeated.text[0], "asdf");
     strcpy(simplerepeated.text[1], "zxcv");
     simplerepeated.message[0].unlucky_number = 169;
+    simplerepeated.message[1].unlucky_number = 144;
     simpleoneof.which_oneofmsg = SimpleOneof_unlucky_number_tag;
     simpleoneof.oneofmsg.unlucky_number = 123;
     simpleoneof.notnested = 124;

@@ -2,8 +2,8 @@
 #include "simple.pb.h"
 
 typedef struct {
-	int idx;
-	char *text;
+    int idx;
+    char *text;
 } enum_desc_t;
 
 void SimpleMessage1_print(SimpleMessage1 *msg, uint8_t level);
