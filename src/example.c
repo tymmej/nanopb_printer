@@ -29,11 +29,11 @@ main(int argc, char *argv[])
     SimpleOneof simpleoneof = SimpleOneof_init_default;
     simple1.enum1 = SimpleEnum1_TWO;
 
-    SimpleMessage1_print(&simple1, 0);
-    SimpleMessage2_print(&simple2, 0);
-    SimpleNested_print(&simplenested, 0);
-    SimpleRepeated_print(&simplerepeated, 0);
-    SimpleOneof_print(&simpleoneof, 0);
+    // SimpleMessage1_print(&simple1, 0);
+    // SimpleMessage2_print(&simple2, 0);
+    // SimpleNested_print(&simplenested, 0);
+    // SimpleRepeated_print(&simplerepeated, 0);
+    // SimpleOneof_print(&simpleoneof, 0);
 
     simple1.lucky_number = 42;
     simple2.has_lucky_number = true;
@@ -56,11 +56,25 @@ main(int argc, char *argv[])
     simpleoneof.oneofmsg.unlucky_number = 123;
     simpleoneof.notnested = 124;
 
-    SimpleMessage1_print(&simple1, 0);
-    SimpleMessage2_print(&simple2, 0);
-    SimpleNested_print(&simplenested, 0);
-    SimpleRepeated_print(&simplerepeated, 0);
-    SimpleOneof_print(&simpleoneof, 0);
+    //SimpleMessage1_print(&simple1, 0);
+    printf("\n");
+    print_message(&simple1, SimpleMessage1_desc, 0);
+    printf("\n\n");
+    //SimpleMessage2_print(&simple2, 0);
+    printf("\n");
+    print_message(&simple2, SimpleMessage2_desc, 0);
+    printf("\n\n");
+    //SimpleNested_print(&simplenested, 0);
+    printf("\n");
+    print_message(&simplenested, SimpleNested_desc, 0);
+    printf("\n\n");
+    //SimpleRepeated_print(&simplerepeated, 0);
+    printf("\n");
+    print_message(&simplerepeated, SimpleRepeated_desc, 0);
+    printf("\n\n");
+    //SimpleOneof_print(&simpleoneof, 0);
+    printf("\n");
+    print_message(&simpleoneof, SimpleOneof_desc, 0);
 
 
     printf("\n");

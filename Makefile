@@ -9,7 +9,7 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d) nanopb
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CPPFLAGS ?= $(INC_FLAGS) -Wall -Wextra
+CPPFLAGS ?= $(INC_FLAGS) -Wall -Wextra -ggdb3 -O0
 
 $(TARGET): $(OBJS)
 	echo $(SRCS)
