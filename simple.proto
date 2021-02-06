@@ -1,0 +1,46 @@
+// A very simple protocol definition, consisting of only
+// one message.
+
+syntax = "proto2";
+
+enum SimpleEnum1 {
+    ONE = 1;
+    TWO = 2;
+}
+
+enum SimpleEnum2 {
+    ONEONE = 1;
+    TWOTWO = 2;
+}
+
+message SimpleMessage1 {
+    required int32 lucky_number = 1;
+    required int32 unlucky_number = 2;
+    required SimpleEnum1 enum1 = 3;
+}
+
+message SimpleMessage2 {
+    optional int64 unlucky_number = 1;
+    optional int64 lucky_number = 2;
+    optional SimpleEnum2 enum1 = 3;
+}
+
+message SimpleNested {
+    optional SimpleMessage1 nested1 = 1;
+    required SimpleMessage2 nested2 = 2;
+    required SimpleEnum1 enum1 = 3;
+    required SimpleEnum2 enum2 = 4;
+}
+
+message SimpleRepeated {
+    repeated string text = 1;
+    repeated SimpleMessage1 message = 2;
+}
+
+message SimpleOneof {
+    oneof oneofmsg {
+        SimpleMessage1 msg1 = 1;
+        int32 unlucky_number = 2;
+    }
+    required int64 notnested = 3;
+}
