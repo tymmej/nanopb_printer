@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x0csimple.proto\"[\n\x0eSimpleMessage1\x12\x14\n\x0clucky_number\x18\x01 \x02(\x05\x12\x16\n\x0eunlucky_number\x18\x02 \x02(\x05\x12\x1b\n\x05\x65num1\x18\x03 \x02(\x0e\x32\x0c.SimpleEnum1\"[\n\x0eSimpleMessage2\x12\x16\n\x0eunlucky_number\x18\x01 \x01(\x03\x12\x14\n\x0clucky_number\x18\x02 \x01(\x03\x12\x1b\n\x05\x65num1\x18\x03 \x01(\x0e\x32\x0c.SimpleEnum2\"\x8c\x01\n\x0cSimpleNested\x12 \n\x07nested1\x18\x01 \x01(\x0b\x32\x0f.SimpleMessage1\x12 \n\x07nested2\x18\x02 \x02(\x0b\x32\x0f.SimpleMessage2\x12\x1b\n\x05\x65num1\x18\x03 \x02(\x0e\x32\x0c.SimpleEnum1\x12\x1b\n\x05\x65num2\x18\x04 \x02(\x0e\x32\x0c.SimpleEnum2\"@\n\x0eSimpleRepeated\x12\x0c\n\x04text\x18\x01 \x03(\t\x12 \n\x07message\x18\x02 \x03(\x0b\x32\x0f.SimpleMessage1\"g\n\x0bSimpleOneof\x12\x1f\n\x04msg1\x18\x01 \x01(\x0b\x32\x0f.SimpleMessage1H\x00\x12\x18\n\x0eunlucky_number\x18\x02 \x01(\x05H\x00\x12\x11\n\tnotnested\x18\x03 \x02(\x03\x42\n\n\x08oneofmsg*\x1f\n\x0bSimpleEnum1\x12\x07\n\x03ONE\x10\x01\x12\x07\n\x03TWO\x10\x02*%\n\x0bSimpleEnum2\x12\n\n\x06ONEONE\x10\x01\x12\n\n\x06TWOTWO\x10\x02')
+  serialized_pb=_b('\n\x0csimple.proto\"[\n\x0eSimpleMessage1\x12\x14\n\x0clucky_number\x18\x01 \x02(\x05\x12\x16\n\x0eunlucky_number\x18\x02 \x02(\x05\x12\x1b\n\x05\x65num1\x18\x03 \x02(\x0e\x32\x0c.SimpleEnum1\"i\n\x0eSimpleMessage2\x12\x16\n\x0eunlucky_number\x18\x01 \x01(\x03\x12\x14\n\x0clucky_number\x18\x02 \x01(\x03\x12\x1b\n\x05\x65num1\x18\x03 \x01(\x0e\x32\x0c.SimpleEnum2\x12\x0c\n\x04\x62yte\x18\x04 \x01(\x0c\"\x8c\x01\n\x0cSimpleNested\x12 \n\x07nested1\x18\x01 \x01(\x0b\x32\x0f.SimpleMessage1\x12 \n\x07nested2\x18\x02 \x02(\x0b\x32\x0f.SimpleMessage2\x12\x1b\n\x05\x65num1\x18\x03 \x02(\x0e\x32\x0c.SimpleEnum1\x12\x1b\n\x05\x65num2\x18\x04 \x02(\x0e\x32\x0c.SimpleEnum2\"@\n\x0eSimpleRepeated\x12\x0c\n\x04text\x18\x01 \x03(\t\x12 \n\x07message\x18\x02 \x03(\x0b\x32\x0f.SimpleMessage1\"g\n\x0bSimpleOneof\x12\x1f\n\x04msg1\x18\x01 \x01(\x0b\x32\x0f.SimpleMessage1H\x00\x12\x18\n\x0eunlucky_number\x18\x02 \x01(\x05H\x00\x12\x11\n\tnotnested\x18\x03 \x02(\x03\x42\n\n\x08oneofmsg*\x1f\n\x0bSimpleEnum1\x12\x07\n\x03ONE\x10\x01\x12\x07\n\x03TWO\x10\x02*%\n\x0bSimpleEnum2\x12\n\n\x06ONEONE\x10\x01\x12\n\n\x06TWOTWO\x10\x02')
 )
 
 _SIMPLEENUM1 = _descriptor.EnumDescriptor(
@@ -40,8 +40,8 @@ _SIMPLEENUM1 = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=516,
-  serialized_end=547,
+  serialized_start=530,
+  serialized_end=561,
 )
 _sym_db.RegisterEnumDescriptor(_SIMPLEENUM1)
 
@@ -63,8 +63,8 @@ _SIMPLEENUM2 = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=549,
-  serialized_end=586,
+  serialized_start=563,
+  serialized_end=600,
 )
 _sym_db.RegisterEnumDescriptor(_SIMPLEENUM2)
 
@@ -149,6 +149,13 @@ _SIMPLEMESSAGE2 = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='byte', full_name='SimpleMessage2.byte', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -162,7 +169,7 @@ _SIMPLEMESSAGE2 = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=109,
-  serialized_end=200,
+  serialized_end=214,
 )
 
 
@@ -213,8 +220,8 @@ _SIMPLENESTED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=203,
-  serialized_end=343,
+  serialized_start=217,
+  serialized_end=357,
 )
 
 
@@ -251,8 +258,8 @@ _SIMPLEREPEATED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=345,
-  serialized_end=409,
+  serialized_start=359,
+  serialized_end=423,
 )
 
 
@@ -299,8 +306,8 @@ _SIMPLEONEOF = _descriptor.Descriptor(
       name='oneofmsg', full_name='SimpleOneof.oneofmsg',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=411,
-  serialized_end=514,
+  serialized_start=425,
+  serialized_end=528,
 )
 
 _SIMPLEMESSAGE1.fields_by_name['enum1'].enum_type = _SIMPLEENUM1

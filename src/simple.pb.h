@@ -27,6 +27,7 @@ typedef struct _SimpleMessage1 {
     SimpleEnum1 enum1;
 } SimpleMessage1;
 
+typedef PB_BYTES_ARRAY_T(4) SimpleMessage2_byte_t;
 typedef struct _SimpleMessage2 {
     bool has_unlucky_number;
     int64_t unlucky_number;
@@ -34,6 +35,8 @@ typedef struct _SimpleMessage2 {
     int64_t lucky_number;
     bool has_enum1;
     SimpleEnum2 enum1;
+    bool has_byte;
+    SimpleMessage2_byte_t byte;
 } SimpleMessage2;
 
 typedef struct _SimpleNested {
@@ -77,12 +80,12 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define SimpleMessage1_init_default              {0, 0, _SimpleEnum1_MIN}
-#define SimpleMessage2_init_default              {false, 0, false, 0, false, _SimpleEnum2_MIN}
+#define SimpleMessage2_init_default              {false, 0, false, 0, false, _SimpleEnum2_MIN, false, {0, {0}}}
 #define SimpleNested_init_default                {false, SimpleMessage1_init_default, SimpleMessage2_init_default, _SimpleEnum1_MIN, _SimpleEnum2_MIN}
 #define SimpleRepeated_init_default              {0, {"", "", "", ""}, 0, {SimpleMessage1_init_default, SimpleMessage1_init_default, SimpleMessage1_init_default, SimpleMessage1_init_default}}
 #define SimpleOneof_init_default                 {0, {SimpleMessage1_init_default}, 0}
 #define SimpleMessage1_init_zero                 {0, 0, _SimpleEnum1_MIN}
-#define SimpleMessage2_init_zero                 {false, 0, false, 0, false, _SimpleEnum2_MIN}
+#define SimpleMessage2_init_zero                 {false, 0, false, 0, false, _SimpleEnum2_MIN, false, {0, {0}}}
 #define SimpleNested_init_zero                   {false, SimpleMessage1_init_zero, SimpleMessage2_init_zero, _SimpleEnum1_MIN, _SimpleEnum2_MIN}
 #define SimpleRepeated_init_zero                 {0, {"", "", "", ""}, 0, {SimpleMessage1_init_zero, SimpleMessage1_init_zero, SimpleMessage1_init_zero, SimpleMessage1_init_zero}}
 #define SimpleOneof_init_zero                    {0, {SimpleMessage1_init_zero}, 0}
@@ -94,6 +97,7 @@ extern "C" {
 #define SimpleMessage2_unlucky_number_tag        1
 #define SimpleMessage2_lucky_number_tag          2
 #define SimpleMessage2_enum1_tag                 3
+#define SimpleMessage2_byte_tag                  4
 #define SimpleNested_nested1_tag                 1
 #define SimpleNested_nested2_tag                 2
 #define SimpleNested_enum1_tag                   3
@@ -115,7 +119,8 @@ X(a, STATIC,   REQUIRED, UENUM,    enum1,             3)
 #define SimpleMessage2_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, INT64,    unlucky_number,    1) \
 X(a, STATIC,   OPTIONAL, INT64,    lucky_number,      2) \
-X(a, STATIC,   OPTIONAL, UENUM,    enum1,             3)
+X(a, STATIC,   OPTIONAL, UENUM,    enum1,             3) \
+X(a, STATIC,   OPTIONAL, BYTES,    byte,              4)
 #define SimpleMessage2_CALLBACK NULL
 #define SimpleMessage2_DEFAULT (const pb_byte_t*)"\x18\x01\x00"
 
@@ -159,8 +164,8 @@ extern const pb_msgdesc_t SimpleOneof_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define SimpleMessage1_size                      24
-#define SimpleMessage2_size                      24
-#define SimpleNested_size                        56
+#define SimpleMessage2_size                      30
+#define SimpleNested_size                        62
 #define SimpleRepeated_size                      236
 #define SimpleOneof_size                         37
 

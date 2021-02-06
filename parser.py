@@ -16,7 +16,7 @@ _proto_type_to_c = {
     "TYPE_STRING": "\"s\"",
     # "TYPE_GROUP": ,
     # "TYPE_MESSAGE": ,
-    # "TYPE_BYTES": ,
+    # "TYPE_BYTES": , extra if
     "TYPE_UINT32": "PRIu32",
     #"TYPE_ENUM": , extra if
     "TYPE_SFIXED32": "PRId32",
@@ -50,6 +50,30 @@ def indent_print(indent = 0, offset = None):
                     }
                     """ % offset, indent)
 
+def print_field(name, field, indent, offset, repeated = False, one_of = None):
+    if repeated:
+        repeated = "[i]"
+    else:
+        repeated = ""
+    if one_of:
+        one_of = "%s." %one_of
+    else:
+        one_of = ""
+    c_text = indent_print(indent, offset)
+    if field[0] == "TYPE_ENUM":
+        c_text += print_code("""
+                            printf("%s=%%s\\n", get_enum_text(%s_desc, msg->%s%s%s));
+                            """ % (name, field[2], one_of, name, repeated), indent)
+    elif field[0] == "TYPE_BYTES":
+        c_text += print_code("""
+                            print_bytes("%s", msg->%s.bytes, msg->%s%s%s.size);
+                            """ % (name, name, one_of, name, repeated), indent)
+    else:
+        c_text += print_code("""
+                            printf("%s=%%"%s"\\n", msg->%s%s%s);
+                            """ % (name, _proto_type_to_c[field[0]], one_of, name, repeated), indent)
+    return c_text
+
 def parse_msg(message):
     c_text = ""
     h_text = ""
@@ -78,10 +102,7 @@ def parse_msg(message):
                                 for (pb_size_t i = 0; i < msg->%s_count; i++) {
                                 """ % name, indent = 1)
             if type(field[0]) is tuple: #repetead field is normal
-                c_text += indent_print(indent = 2, offset = 1)
-                c_text += print_code("""
-                                    printf("%s=%%"%s"\\n", msg->%s[i]);
-                                    """ % (name, _proto_type_to_c[field[0][0]], name), indent = 2)
+                c_text += print_field(name, field[0], 2, 1, repeated = True, one_of = None)
             else: #repeated field is message
                 c_text += print_code("""
                                     %s_print(&msg->%s[i], level + 1);
@@ -115,37 +136,24 @@ def parse_msg(message):
                 c_text += print_code("""
                                     if (msg->which_%s == %s_%s_tag) {
                                     """ % (one_of, message[0], name), indent = 1)
-                c_text += indent_print(indent = 2, offset = 1)
-                if field[0] == "TYPE_ENUM":
-                    c_text += print_code("""
-                                        printf("%s=%%s\\n", get_enum_text(%s_desc, msg->%s.%s));
-                                        """ % (name, field[2], one_of, name), indent = 2)
-                else:
-                    c_text += print_code("""
-                                        printf("%s=%%"%s"\\n", msg->%s.%s);
-                                        """ % (name, _proto_type_to_c[field[0]], one_of, name), indent = 2)
+                c_text += print_field(name, field, 2, 1, repeated = False, one_of = one_of)
                 c_text += "\t}\n"
                 continue
             elif field[1] == 'LABEL_OPTIONAL':
                 c_text += print_code("""
                                     if (msg->has_%s) {
                                     """ % name, indent = 1)
-            c_text += indent_print(indent = 1, offset = 1)
-            if field[0] == "TYPE_ENUM":
-                c_text += print_code("""
-                                    printf("%s=%%s\\n", get_enum_text(%s_desc, msg->%s));
-                                    """ % (name, field[2], name), indent = 1)
-            else:
-                c_text += print_code("""
-                                    printf("%s=%%"%s"\\n", msg->%s);
-                                    """ % (name, _proto_type_to_c[field[0]], name), indent = 1)
+            c_text += print_field(name, field, 1, 1, repeated = False, one_of = None)
             
             if field[1] == 'LABEL_OPTIONAL':
                 c_text += print_code("""
                                     }
                                     """, indent = 1)
 
-    c_text += "}\n\n"
+    c_text += print_code("""
+                        }
+
+                        """)
 
     return (c_text, h_text)
 
@@ -197,6 +205,19 @@ c_text += print_code("""
                             i++;
                         }
                         return "Unknown enum";
+                    }
+                    
+                    """)
+
+c_text += print_code("""
+                    static void
+                    print_bytes(const char *name, const uint8_t *buf, size_t len)
+                    {
+                        printf("%s=\\"", name);
+                        for (size_t i = 0; i < len; i++) {
+                            printf("%.02x", buf[i]);
+                        }
+                        printf("\\"\\n");
                     }
                     
                     """)

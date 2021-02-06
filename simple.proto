@@ -23,6 +23,7 @@ message SimpleMessage2 {
     optional int64 unlucky_number = 1;
     optional int64 lucky_number = 2;
     optional SimpleEnum2 enum1 = 3;
+    optional bytes byte = 4;
 }
 
 message SimpleNested {

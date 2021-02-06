@@ -1,3 +1,4 @@
 SimpleRepeated.text max_count:4
 SimpleRepeated.text max_size:32
 SimpleRepeated.message max_count:4
+SimpleMessage2.byte max_size:4

@@ -15,6 +15,16 @@ get_enum_text(enum_desc_t *desc, int idx)
     return "Unknown enum";
 }
 
+static void
+print_bytes(const char *name, const uint8_t *buf, size_t len)
+{
+    printf("%s=\"", name);
+    for (size_t i = 0; i < len; i++) {
+        printf("%.02x", buf[i]);
+    }
+    printf("\"\n");
+}
+
 static enum_desc_t SimpleEnum1_desc[] = {
 	{.idx = 1, .text = "ONE"},
 	{.idx = 2, .text = "TWO"},
@@ -72,6 +82,12 @@ SimpleMessage2_print(SimpleMessage2 *msg, uint8_t level)
 	    printf("\t");
 	}
 	printf("enum1=%s\n", get_enum_text(SimpleEnum2_desc, msg->enum1));
+	}
+	if (msg->has_byte) {
+	for (int j = 0; j < level + 1; j++) {
+	    printf("\t");
+	}
+	print_bytes("byte", msg->byte.bytes, msg->byte.size);
 	}
 }
 

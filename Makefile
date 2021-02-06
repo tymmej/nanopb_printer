@@ -2,6 +2,7 @@ TARGET ?= a.out
 SRC_DIRS ?= ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.s")
+SRCS += $(shell find nanopb -maxdepth 2 -name "*.cpp" -or -name "*.c" -or -name "*.s")
 OBJS := $(addsuffix .o,$(basename $(SRCS)))
 DEPS := $(OBJS:.o=.d)
 
@@ -11,6 +12,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS ?= $(INC_FLAGS) -Wall -Wextra
 
 $(TARGET): $(OBJS)
+	echo $(SRCS)
 	$(CC) $(LDFLAGS) $(OBJS) -o $@ $(LOADLIBES) $(LDLIBS)
 
 .PHONY: clean
