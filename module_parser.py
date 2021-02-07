@@ -15,8 +15,9 @@ Map = namedtuple('Map', ['key', 'value'])
 
 def _field_type(field, context):
     '''Helper that returns either a str or nametuple corresponding to the field type'''
+    print(field.name, field.message_type)
     if field.message_type is not None:
-        return message_as_namedtuple(field.message_type, context)
+        return {"field": message_as_namedtuple(field.message_type, context), "label": _label_dict[field.label]}
     else:
         if (_type_dict[field.type] == "TYPE_ENUM"):
             return _type_dict[field.type], _label_dict[field.label], field.enum_type.name
@@ -40,7 +41,12 @@ def field_type(field, context):
             value = _field_type(field, context)
             return Repeated(value)
     else:
-        return _field_type(field, context)
+        print(field.name)
+        r = _field_type(field, context)
+        if type(r) is dict:
+            print("---", type(r["field"]).__name__, r["label"])
+        print(type(r))
+        return r
 
 
 def message_as_namedtuple(descr, context):

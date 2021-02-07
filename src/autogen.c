@@ -18,7 +18,7 @@ get_enum_text(const enum_desc_t *desc, pb_size_t idx)
 static void
 print_bytes(const char *name, const uint8_t *buf, size_t len)
 {
-    printf("%s=\"", name);
+    printf("%s: \"", name);
     for (size_t i = 0; i < len; i++) {
         printf("%.02x", buf[i]);
     }
@@ -53,9 +53,11 @@ print_message(const void *message, const proto_desc_t *desc, int indent)
                 char format[8] = { 0 };
                 format[0] = '%';
                 strcpy(&format[1], desc[idx].format);
-                printf("%s=", desc[idx].name);
+                printf("%s: ", desc[idx].name);
                 if (strcmp(&format[1], "s") == 0) {
+                    printf("\"");
                     printf(format, field_ptr);
+                    printf("\"");
                 } else if (strcmp(&format[1], "f") == 0) {
                     printf(format, *(float *)field_ptr);
                 } else if (strcmp(&format[1], "lf") == 0) {
@@ -78,7 +80,7 @@ print_message(const void *message, const proto_desc_t *desc, int indent)
                 printf("\n");
             }
             if (desc[idx].field == FIELD_ENUM) {
-                printf("%s=%s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *(pb_size_t *)field_ptr));
+                printf("%s: %s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *(pb_size_t *)field_ptr));
                 printf("\n");
             }
             if (desc[idx].field == FIELD_BYTES) {
@@ -86,9 +88,12 @@ print_message(const void *message, const proto_desc_t *desc, int indent)
                 printf("\n");
             }
             if (desc[idx].field == FIELD_MESSAGE) {
-                printf("%s:\n", desc[idx].name);
+                printf("%s {\n", desc[idx].name);
                 print_message(field_ptr, desc[idx].message.desc, indent + 1);
-                printf("\n");
+                for (int j = 0; j < indent; j++) {
+                    printf("\t");
+                }
+                printf("}\n");
             }
         }             
     }
@@ -122,7 +127,7 @@ const proto_desc_t SimpleMessage2_desc[] = {
 };
 
 const proto_desc_t SimpleNested_desc[] = {
-		{.field = FIELD_MESSAGE, .label = LABEL_REQUIRED, .name = "nested1", .offset = offsetof(SimpleNested, nested1), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .message.desc = SimpleMessage1_desc},
+		{.field = FIELD_MESSAGE, .label = LABEL_OPTIONAL, .name = "nested1", .offset = offsetof(SimpleNested, nested1), .offset_optional = offsetof(SimpleNested, has_nested1), .offset_repeated = -1, .element_size = -1, .message.desc = SimpleMessage1_desc},
 		{.field = FIELD_MESSAGE, .label = LABEL_REQUIRED, .name = "nested2", .offset = offsetof(SimpleNested, nested2), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .message.desc = SimpleMessage2_desc},
 	{.field = FIELD_ENUM, .label = LABEL_REQUIRED, .name = "enum1", .offset = offsetof(SimpleNested, enum1), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .enum_type.desc = SimpleEnum1_desc},
 	{.field = FIELD_ENUM, .label = LABEL_REQUIRED, .name = "enum2", .offset = offsetof(SimpleNested, enum2), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .enum_type.desc = SimpleEnum2_desc},
@@ -130,8 +135,8 @@ const proto_desc_t SimpleNested_desc[] = {
 };
 
 const proto_desc_t SimpleRepeated_desc[] = {
-		{.field = FIELD_NORMAL, .label = LABEL_REPEATED, .name = "text", .offset = offsetof(SimpleRepeated, text), .offset_optional = -1, .offset_repeated = offsetof(SimpleRepeated, text_count), .element_size = sizeof(((SimpleRepeated *)NULL)->text) / (sizeof(((SimpleRepeated *)NULL)->text) / sizeof(((SimpleRepeated *)NULL)->text[0])), .format = "s"},
-		{.field = FIELD_MESSAGE, .label = LABEL_REPEATED, .name = "message", .offset = offsetof(SimpleRepeated, message), .offset_optional = -1, .offset_repeated = offsetof(SimpleRepeated, message_count), .element_size = sizeof(((SimpleRepeated *)NULL)->message) / (sizeof(((SimpleRepeated *)NULL)->message) / sizeof(((SimpleRepeated *)NULL)->message[0])), .message.desc = SimpleMessage1_desc},
+		{.field = FIELD_NORMAL, .label = LABEL_REPEATED, .name = "text", .offset = offsetof(SimpleRepeated, text), .offset_optional = -1, .offset_repeated = offsetof(SimpleRepeated, text_count), .element_size = sizeof(((SimpleRepeated *)NULL)->text[0]), .format = "s"},
+		{.field = FIELD_MESSAGE, .label = LABEL_REPEATED, .name = "message", .offset = offsetof(SimpleRepeated, message), .offset_optional = -1, .offset_repeated = offsetof(SimpleRepeated, message_count), .element_size = sizeof(((SimpleRepeated *)NULL)->message[0]), .message.desc = SimpleMessage1_desc},
     {.field = FIELD_LAST},
 };
 

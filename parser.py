@@ -51,7 +51,7 @@ def print_field(message, name, field, indent, offset, optional = False, repeated
         repeated = "[i]"
         label = "LABEL_REPEATED"
         offset_repeated = "offsetof(%s, %s_count)" % (message, name)
-        element_size = "sizeof(((%s *)NULL)->%s) / (sizeof(((%s *)NULL)->%s) / sizeof(((%s *)NULL)->%s[0]))" % (message, name, message, name, message, name)
+        element_size = "sizeof(((%s *)NULL)->%s[0])" % (message, name)
     else:
         repeated = ""
     if one_of:
@@ -96,17 +96,17 @@ def parse_msg(message):
         if name == "oneofs_":
             oneofs = field
         elif isinstance(field, module_parser.Repeated):
-            if type(field[0]) is not tuple:
-                message_name = type(field[0]).__name__
             if type(field[0]) is tuple: #repetead field is normal
                 new_desc = print_field(message[0], name, field[0], 2, 1, repeated = True, one_of = None)
                 desc_text += new_desc
             else: #repeated field is message
+                message_name = type(field[0]["field"]).__name__
                 new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = True, submessage=message_name)
                 desc_text += new_desc
-        elif isinstance(field[1], tuple):
+        elif isinstance(field, dict):
             one_of = field_in_of(name, oneofs)
-            new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = False, one_of = one_of, submessage=type(field).__name__)
+            optional = field["label"] == 'LABEL_OPTIONAL' and one_of is None
+            new_desc = print_field(message[0], name, type(field["field"]).__name__, 2, 1, optional = optional, repeated = False, one_of = one_of, submessage=type(field["field"]).__name__)
             desc_text += new_desc
         else:
             one_of = field_in_of(name, oneofs)
@@ -185,7 +185,7 @@ c_text += print_code("""
                     static void
                     print_bytes(const char *name, const uint8_t *buf, size_t len)
                     {
-                        printf("%s=\\"", name);
+                        printf("%s: \\"", name);
                         for (size_t i = 0; i < len; i++) {
                             printf("%.02x", buf[i]);
                         }
@@ -288,9 +288,11 @@ c_text += print_code("""
                                     char format[8] = { 0 };
                                     format[0] = '%';
                                     strcpy(&format[1], desc[idx].format);
-                                    printf("%s=", desc[idx].name);
+                                    printf("%s: ", desc[idx].name);
                                     if (strcmp(&format[1], "s") == 0) {
+                                        printf("\\"");
                                         printf(format, field_ptr);
+                                        printf("\\"");
                                     } else if (strcmp(&format[1], "f") == 0) {
                                         printf(format, *(float *)field_ptr);
                                     } else if (strcmp(&format[1], "lf") == 0) {
@@ -313,7 +315,7 @@ c_text += print_code("""
                                     printf("\\n");
                                 }
                                 if (desc[idx].field == FIELD_ENUM) {
-                                    printf("%s=%s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *(pb_size_t *)field_ptr));
+                                    printf("%s: %s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *(pb_size_t *)field_ptr));
                                     printf("\\n");
                                 }
                                 if (desc[idx].field == FIELD_BYTES) {
@@ -321,9 +323,12 @@ c_text += print_code("""
                                     printf("\\n");
                                 }
                                 if (desc[idx].field == FIELD_MESSAGE) {
-                                    printf("%s:\\n", desc[idx].name);
+                                    printf("%s {\\n", desc[idx].name);
                                     print_message(field_ptr, desc[idx].message.desc, indent + 1);
-                                    printf("\\n");
+                                    for (int j = 0; j < indent; j++) {
+                                        printf("\\t");
+                                    }
+                                    printf("}\\n");
                                 }
                             }             
                         }
