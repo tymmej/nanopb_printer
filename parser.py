@@ -140,7 +140,7 @@ def parse_enum(enum):
                             {.idx = %d, .text = \"%s\"},
                             """ % (field[1], field[0]), indent = 1)
     c_text += print_code("""
-                        {.idx = -1}
+                        {.idx = (pb_size_t)-1}
                         """, indent = 1)
     c_text += print_code("""
                         };
@@ -167,10 +167,10 @@ h_text = print_code("""
 
 c_text += print_code("""
                     static const char *
-                    get_enum_text(const enum_desc_t *desc, int idx)
+                    get_enum_text(const enum_desc_t *desc, pb_size_t idx)
                     {
                         int i = 0;
-                        while (desc[i].idx != -1) {
+                        while (desc[i].idx != (pb_size_t)-1) {
                             if (desc[i].idx == idx) {
                                 return desc[i].text;
                             }
@@ -214,7 +214,7 @@ h_text += print_code("""
 
 h_text += print_code("""
                     typedef struct {
-                        int idx;
+                        pb_size_t idx;
                         const char *text;
                     } enum_desc_t;
 
@@ -283,29 +283,46 @@ c_text += print_code("""
                                 for (int j = 0; j < indent; j++) {
                                     printf("\\t");
                                 }
+                                void *field_ptr = (uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size);
                                 if (desc[idx].field == FIELD_NORMAL) {
                                     char format[8] = { 0 };
                                     format[0] = '%';
                                     strcpy(&format[1], desc[idx].format);
                                     printf("%s=", desc[idx].name);
                                     if (strcmp(&format[1], "s") == 0) {
-                                        printf(format, ((uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size)));
-                                    } else {
-                                        printf(format, *((uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size)));
+                                        printf(format, field_ptr);
+                                    } else if (strcmp(&format[1], "f") == 0) {
+                                        printf(format, *(float *)field_ptr);
+                                    } else if (strcmp(&format[1], "lf") == 0) {
+                                        strcpy(&format[1], &desc[idx].format[1]);
+                                        printf(format, *(double *)field_ptr);
+                                    } else if (strcmp(&format[1], PRId64) == 0) {
+                                        printf(format, *(int64_t *)field_ptr);
+                                    } else if (strcmp(&format[1], PRIu64) == 0) {
+                                        printf(format, *(uint64_t *)field_ptr);
+                                    } else if (strcmp(&format[1], PRId32) == 0) {
+                                        printf(format, *(int32_t *)field_ptr);
+                                    } else if (strcmp(&format[1], PRIu32) == 0) {
+                                        printf(format, *(uint32_t *)field_ptr);
+                                    } else if (strcmp(&format[1], "b") == 0) {
+                                        strcpy(&format[1], PRIu8);
+                                        printf(format, *(uint8_t *)field_ptr);
+                                    } else if (strcmp(&format[1], PRIu32) == 0) {
+                                        printf(format, *(uint32_t *)field_ptr);
                                     }
                                     printf("\\n");
                                 }
                                 if (desc[idx].field == FIELD_ENUM) {
-                                    printf("%s=%s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *((uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size))));
+                                    printf("%s=%s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *(pb_size_t *)field_ptr));
                                     printf("\\n");
                                 }
                                 if (desc[idx].field == FIELD_BYTES) {
-                                    print_bytes(desc[idx].name, (uint8_t *)message + desc[idx].offset + sizeof(pb_size_t), *(pb_size_t *)((uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size)));
+                                    print_bytes(desc[idx].name, (uint8_t *)field_ptr + sizeof(pb_size_t), *(pb_size_t *)field_ptr);
                                     printf("\\n");
                                 }
                                 if (desc[idx].field == FIELD_MESSAGE) {
                                     printf("%s:\\n", desc[idx].name);
-                                    print_message((uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size), desc[idx].message.desc, indent  + 1);
+                                    print_message(field_ptr, desc[idx].message.desc, indent + 1);
                                     printf("\\n");
                                 }
                             }             

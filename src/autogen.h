@@ -17,7 +17,7 @@ typedef enum {
 } field_label_t;
 
 typedef struct {
-    int idx;
+    pb_size_t idx;
     const char *text;
 } enum_desc_t;
 
