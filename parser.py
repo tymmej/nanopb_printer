@@ -153,188 +153,20 @@ module = sys.argv[1]
 proto = importlib.import_module(module + "_pb2")
 
 c_text = print_code("""
-                    #include "autogen.h"
+                    #include "%s.h"
                     #include <inttypes.h>
                     #include <stdio.h>
 
-                    """)
+                    """ % module)
 
 h_text = print_code("""
                     #pragma once
+                    
+                    #include <nanopb_printer/nanopb_printer.h>
                     #include "%s.pb.h"
+                    #include "%s.h"
 
-                    """ % module)
-
-c_text += print_code("""
-                    static const char *
-                    get_enum_text(const enum_desc_t *desc, pb_size_t idx)
-                    {
-                        int i = 0;
-                        while (desc[i].idx != (pb_size_t)-1) {
-                            if (desc[i].idx == idx) {
-                                return desc[i].text;
-                            }
-                            i++;
-                        }
-                        return "Unknown enum";
-                    }
-                    
-                    """)
-
-c_text += print_code("""
-                    static void
-                    print_bytes(const char *name, const uint8_t *buf, size_t len)
-                    {
-                        printf("%s: \\"", name);
-                        for (size_t i = 0; i < len; i++) {
-                            printf("%.02x", buf[i]);
-                        }
-                        printf("\\"\\n");
-                    }
-                    
-                    """)
-
-h_text += print_code("""
-                    typedef enum {
-                        FIELD_NORMAL,
-                        FIELD_ENUM,
-                        FIELD_BYTES,
-                        FIELD_MESSAGE,
-                        FIELD_LAST,
-                    } field_type_t;
-
-                    typedef enum {
-                        LABEL_REQUIRED,
-                        LABEL_REPEATED,
-                        LABEL_OPTIONAL,
-                        LABEL_ONEOF,
-                    } field_label_t;
-
-                    """)
-
-h_text += print_code("""
-                    typedef struct {
-                        pb_size_t idx;
-                        const char *text;
-                    } enum_desc_t;
-
-                    """)
-
-h_text += print_code("""
-
-                    typedef struct {
-                        const enum_desc_t *desc;
-                    } proto_enum_desc_t;
-
-                    typedef struct {
-                        const void *desc;
-                    } proto_message_desc_t;
-
-                    typedef struct {
-                        size_t offset_tag;
-                        int tag;
-                    } proto_oneof_desc_t;
-
-                    typedef struct {
-                        field_type_t field;
-                        field_label_t label;
-                        const char *name;
-                        size_t offset;
-                        size_t offset_optional;
-                        size_t offset_repeated;
-                        size_t offset_oneof;
-                        size_t element_size;
-                        const char *format;
-                        union {
-                            proto_enum_desc_t enum_type;
-                            proto_message_desc_t message;
-                            proto_oneof_desc_t oneof;
-                        };
-                    } proto_desc_t;
-
-                    """)
-
-h_text += print_code("""
-                    void print_message(const void *message, const proto_desc_t *desc, int indent);
-
-                    """)
-
-c_text += print_code("""
-                    void
-                    print_message(const void *message, const proto_desc_t *desc, int indent)
-                    {
-                        for (int idx = 0; desc[idx].field != FIELD_LAST; idx++) {
-                            pb_size_t count = 1;
-                            if (desc[idx].label == LABEL_OPTIONAL) {
-                                if (!(*(bool *)((uint8_t *)message + desc[idx].offset_optional))) {
-                                    count = 0;
-                                }
-                            }
-                            if (desc[idx].label == LABEL_REPEATED) {
-                                count = *(pb_size_t *)((uint8_t *)message + desc[idx].offset_repeated);
-                            }
-                            if (desc[idx].label == LABEL_ONEOF) {
-                                count = 0;
-                                if (*(pb_size_t *)((uint8_t *)message + desc[idx].oneof.offset_tag) == desc[idx].oneof.tag) {
-                                    count = 1;
-                                }
-                            }
-                            for (pb_size_t i = 0; i < count; i++) {
-                                for (int j = 0; j < indent; j++) {
-                                    printf("\\t");
-                                }
-                                void *field_ptr = (uint8_t *)message + desc[idx].offset + (i * desc[idx].element_size);
-                                if (desc[idx].field == FIELD_NORMAL) {
-                                    char format[8] = { 0 };
-                                    format[0] = '%';
-                                    strcpy(&format[1], desc[idx].format);
-                                    printf("%s: ", desc[idx].name);
-                                    if (strcmp(&format[1], "s") == 0) {
-                                        printf("\\"");
-                                        printf(format, field_ptr);
-                                        printf("\\"");
-                                    } else if (strcmp(&format[1], "f") == 0) {
-                                        printf(format, *(float *)field_ptr);
-                                    } else if (strcmp(&format[1], "lf") == 0) {
-                                        strcpy(&format[1], &desc[idx].format[1]);
-                                        printf(format, *(double *)field_ptr);
-                                    } else if (strcmp(&format[1], PRId64) == 0) {
-                                        printf(format, *(int64_t *)field_ptr);
-                                    } else if (strcmp(&format[1], PRIu64) == 0) {
-                                        printf(format, *(uint64_t *)field_ptr);
-                                    } else if (strcmp(&format[1], PRId32) == 0) {
-                                        printf(format, *(int32_t *)field_ptr);
-                                    } else if (strcmp(&format[1], PRIu32) == 0) {
-                                        printf(format, *(uint32_t *)field_ptr);
-                                    } else if (strcmp(&format[1], "b") == 0) {
-                                        strcpy(&format[1], PRIu8);
-                                        printf(format, *(uint8_t *)field_ptr);
-                                    } else if (strcmp(&format[1], PRIu32) == 0) {
-                                        printf(format, *(uint32_t *)field_ptr);
-                                    }
-                                    printf("\\n");
-                                }
-                                if (desc[idx].field == FIELD_ENUM) {
-                                    printf("%s: %s", desc[idx].name, get_enum_text(desc[idx].enum_type.desc, *(pb_size_t *)field_ptr));
-                                    printf("\\n");
-                                }
-                                if (desc[idx].field == FIELD_BYTES) {
-                                    print_bytes(desc[idx].name, (uint8_t *)field_ptr + sizeof(pb_size_t), *(pb_size_t *)field_ptr);
-                                    printf("\\n");
-                                }
-                                if (desc[idx].field == FIELD_MESSAGE) {
-                                    printf("%s {\\n", desc[idx].name);
-                                    print_message(field_ptr, desc[idx].message.desc, indent + 1);
-                                    for (int j = 0; j < indent; j++) {
-                                        printf("\\t");
-                                    }
-                                    printf("}\\n");
-                                }
-                            }             
-                        }
-                    }
-                    
-                    """)
+                    """ % (module, module))
 
 enums = module_parser.module_enums(proto)
 
@@ -350,10 +182,10 @@ for message in module_parser.module_msgs(proto).items():
     c_text += new_c
     h_text += new_h
 
-f = open("src/autogen.h", "w")
+f = open("src/%s.h" % module, "w")
 f.write(h_text)
 f.close()
 
-f = open("src/autogen.c", "w")
+f = open("src/%s.c" % module, "w")
 f.write(c_text)
 f.close()
