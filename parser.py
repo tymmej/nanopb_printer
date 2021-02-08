@@ -152,6 +152,12 @@ def parse_enum(enum):
 module = sys.argv[1]
 proto = importlib.import_module(module + "_pb2")
 
+included = []
+attributes = dir(proto)
+for attr in attributes:
+    if attr.endswith("__pb2"):
+        included.append(attr.replace("__pb2", ""))
+
 c_text = print_code("""
                     #include "%s.h"
                     #include <inttypes.h>
@@ -163,10 +169,18 @@ h_text = print_code("""
                     #pragma once
                     
                     #include <nanopb_printer/nanopb_printer.h>
+                    
                     #include "%s.pb.h"
                     #include "%s.h"
 
                     """ % (module, module))
+
+for inc in included:
+    h_text += print_code("""
+                        #include "%s.pb.h"
+                        #include "%s.h"
+
+                        """ % (inc, inc))
 
 enums = module_parser.module_enums(proto)
 

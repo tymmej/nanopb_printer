@@ -50,3 +50,8 @@ const proto_desc_t SimpleOneof_desc[] = {
     {.field = FIELD_LAST},
 };
 
+const proto_desc_t SimpleIncluding_desc[] = {
+		{.field = FIELD_MESSAGE, .label = LABEL_REQUIRED, .name = "included", .offset = offsetof(SimpleIncluding, included), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .message.desc = SimpleIncluded_desc},
+    {.field = FIELD_LAST},
+};
+

@@ -1,0 +1,14 @@
+// A very simple protocol definition, consisting of only
+// one message.
+
+syntax = "proto2";
+
+enum SimpleIncludedEnum {
+    INCLUDED = 1;
+    EXCLUDED = 2;
+}
+
+message SimpleIncluded {
+    required SimpleIncludedEnum enum_inc = 3;
+}
+

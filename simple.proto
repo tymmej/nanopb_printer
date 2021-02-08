@@ -3,6 +3,8 @@
 
 syntax = "proto2";
 
+import "simpleinclude.proto";
+
 enum SimpleEnum1 {
     ONE = 1;
     TWO = 2;
@@ -45,3 +47,8 @@ message SimpleOneof {
     }
     required int64 notnested = 3;
 }
+
+message SimpleIncluding {
+    required SimpleIncluded included = 1;
+}
+

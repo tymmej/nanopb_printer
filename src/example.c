@@ -2,7 +2,7 @@
 
 #include "nanopb_printer.h"
 #include "simple.pb.h"
-#include "autogen.h"
+#include "simple.h"
 
 #include <pb_encode.h>
 
@@ -28,9 +28,9 @@ main(int argc, char *argv[])
     SimpleNested simplenested = SimpleNested_init_default;
     SimpleRepeated simplerepeated = SimpleRepeated_init_default;
     SimpleOneof simpleoneof = SimpleOneof_init_default;
+    SimpleIncluding simpleincluding = SimpleIncluding_init_default;
+
     simple1.enum1 = SimpleEnum1_TWO;
-
-
     simple1.lucky_number = 42;
     simple2.has_lucky_number = true;
     simple2.lucky_number = 23;
@@ -51,6 +51,7 @@ main(int argc, char *argv[])
     simpleoneof.which_oneofmsg = SimpleOneof_unlucky_number_tag;
     simpleoneof.oneofmsg.unlucky_number = 123;
     simpleoneof.notnested = 124;
+    simpleincluding.included.enum_inc = SimpleIncludedEnum_EXCLUDED;
 
     print_message(&simple1, SimpleMessage1_desc, 0);
     printf("\n");
@@ -61,6 +62,8 @@ main(int argc, char *argv[])
     print_message(&simplerepeated, SimpleRepeated_desc, 0);
     printf("\n");
     print_message(&simpleoneof, SimpleOneof_desc, 0);
+    printf("\n");
+    print_message(&simpleincluding, SimpleIncluding_desc, 0);
 
 
     printf("\n");
@@ -86,6 +89,10 @@ main(int argc, char *argv[])
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
     print_bytes("simpleoneof", buffer, ostream.bytes_written);
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SimpleIncluding_fields, &simpleincluding);
+    print_bytes("simpleincluded", buffer, ostream.bytes_written);
 
     return 0;
 }

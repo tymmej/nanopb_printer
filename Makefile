@@ -1,6 +1,8 @@
 TARGET ?= simple.out
 SRC_DIRS ?= ./src
 
+PROTOS = simple simpleinclude
+
 SRCS := $(shell find $(SRC_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.s")
 SRCS += $(shell find nanopb -maxdepth 2 -name "*.cpp" -or -name "*.c" -or -name "*.s")
 OBJS := $(addsuffix .o,$(basename $(SRCS)))
@@ -20,11 +22,9 @@ clean:
 	$(RM) $(TARGET) $(OBJS) $(DEPS)
 
 proto:
-	python3 nanopb/generator/nanopb_generator.py simple.proto
-	mv simple.pb.* ./src
-	protoc -I=. --python_out=. simple.proto
+	$(foreach proto,$(PROTOS),python3 nanopb/generator/nanopb_generator.py $(proto).proto;mv $(proto).pb.* ./src;protoc -I=. --python_out=. $(proto).proto;)
 
 parser:
-	python3 parser.py simple
-
+	$(foreach proto,$(PROTOS),python3 parser.py $(proto);)
+	
 -include $(DEPS)
