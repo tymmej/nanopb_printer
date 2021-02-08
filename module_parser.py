@@ -15,7 +15,6 @@ Map = namedtuple('Map', ['key', 'value'])
 
 def _field_type(field, context):
     '''Helper that returns either a str or nametuple corresponding to the field type'''
-    print(field.name, field.message_type)
     if field.message_type is not None:
         return {"field": message_as_namedtuple(field.message_type, context), "label": _label_dict[field.label]}
     else:
@@ -41,11 +40,7 @@ def field_type(field, context):
             value = _field_type(field, context)
             return Repeated(value)
     else:
-        print(field.name)
         r = _field_type(field, context)
-        if type(r) is dict:
-            print("---", type(r["field"]).__name__, r["label"])
-        print(type(r))
         return r
 
 
