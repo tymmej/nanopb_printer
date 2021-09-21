@@ -23,6 +23,7 @@ main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
+    SingleNumber singlenumber = SingleNumber_init_default;
     SimpleMessage1 simple1 = SimpleMessage1_init_default;
     SimpleMessage2 simple2 = SimpleMessage2_init_default;
     SimpleNested simplenested = SimpleNested_init_default;
@@ -30,6 +31,7 @@ main(int argc, char *argv[])
     SimpleOneof simpleoneof = SimpleOneof_init_default;
     SimpleIncluding simpleincluding = SimpleIncluding_init_default;
 
+    singlenumber.number = 99;
     simple1.enum1 = SimpleEnum1_TWO;
     simple1.lucky_number = 42;
     simple2.has_lucky_number = true;
@@ -53,6 +55,8 @@ main(int argc, char *argv[])
     simpleoneof.notnested = 124;
     simpleincluding.included.enum_inc = SimpleIncludedEnum_EXCLUDED;
 
+    print_message(&singlenumber, SingleNumber_desc, 0);
+    printf("\n");
     print_message(&simple1, SimpleMessage1_desc, 0);
     printf("\n");
     print_message(&simple2, SimpleMessage2_desc, 0);

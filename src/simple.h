@@ -8,6 +8,7 @@
 #include "simpleinclude.pb.h"
 #include "simpleinclude.h"
 
+extern const proto_desc_t SingleNumber_desc[];
 extern const proto_desc_t SimpleMessage1_desc[];
 extern const proto_desc_t SimpleMessage2_desc[];
 extern const proto_desc_t SimpleNested_desc[];

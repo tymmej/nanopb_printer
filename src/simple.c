@@ -14,6 +14,11 @@ static const enum_desc_t SimpleEnum2_desc[] = {
 	{.idx = (pb_size_t)-1}
 };
 
+const proto_desc_t SingleNumber_desc[] = {
+	{.field = FIELD_NORMAL, .label = LABEL_REQUIRED, .name = "number", .offset = offsetof(SingleNumber, number), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .format = PRId32},
+    {.field = FIELD_LAST},
+};
+
 const proto_desc_t SimpleMessage1_desc[] = {
 	{.field = FIELD_NORMAL, .label = LABEL_REQUIRED, .name = "lucky_number", .offset = offsetof(SimpleMessage1, lucky_number), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .format = PRId32},
 	{.field = FIELD_NORMAL, .label = LABEL_REQUIRED, .name = "unlucky_number", .offset = offsetof(SimpleMessage1, unlucky_number), .offset_optional = -1, .offset_repeated = -1, .element_size = -1, .format = PRId32},

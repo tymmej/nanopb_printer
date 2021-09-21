@@ -5,6 +5,11 @@ syntax = "proto2";
 
 import "simpleinclude.proto";
 
+
+message SingleNumber {
+    required int32 number = 1;
+}
+
 enum SimpleEnum1 {
     ONE = 1;
     TWO = 2;
