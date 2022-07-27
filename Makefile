@@ -22,7 +22,7 @@ clean:
 	$(RM) $(TARGET) $(OBJS) $(DEPS)
 
 proto:
-	$(foreach proto,$(PROTOS),python3 nanopb/generator/nanopb_generator.py $(proto).proto;mv $(proto).pb.* ./src;protoc -I=. --python_out=. $(proto).proto;)
+	$(foreach proto,$(PROTOS),nanopb_generator $(proto).proto;mv $(proto).pb.* ./src;protoc -I=. --python_out=. $(proto).proto;)
 
 parser:
 	$(foreach proto,$(PROTOS),python3 parser.py $(proto);)

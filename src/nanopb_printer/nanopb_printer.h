@@ -46,9 +46,9 @@ typedef struct {
     size_t offset_oneof;
     size_t element_size;
     const char *format;
+    proto_message_desc_t message;
     union {
         proto_enum_desc_t enum_type;
-        proto_message_desc_t message;
         proto_oneof_desc_t oneof;
     };
 } proto_desc_t;

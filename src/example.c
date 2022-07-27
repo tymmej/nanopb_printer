@@ -28,6 +28,7 @@ main(int argc, char *argv[])
     SimpleNested simplenested = SimpleNested_init_default;
     SimpleRepeated simplerepeated = SimpleRepeated_init_default;
     SimpleOneof simpleoneof = SimpleOneof_init_default;
+    SimpleOneof simpleoneof2 = SimpleOneof_init_default;
     SimpleIncluding simpleincluding = SimpleIncluding_init_default;
 
     simple1.enum1 = SimpleEnum1_TWO;
@@ -51,6 +52,11 @@ main(int argc, char *argv[])
     simpleoneof.which_oneofmsg = SimpleOneof_unlucky_number_tag;
     simpleoneof.oneofmsg.unlucky_number = 123;
     simpleoneof.notnested = 124;
+    simpleoneof2.which_oneofmsg = SimpleOneof_msg1_tag;
+    simpleoneof2.oneofmsg.msg1.enum1 = SimpleEnum1_TWO;
+    simpleoneof2.oneofmsg.msg1.lucky_number = 42;
+    simpleoneof2.oneofmsg.msg1.unlucky_number = 24;
+    simpleoneof2.notnested = 142;
     simpleincluding.included.enum_inc = SimpleIncludedEnum_EXCLUDED;
 
     print_message(&simple1, SimpleMessage1_desc, 0);
@@ -62,6 +68,8 @@ main(int argc, char *argv[])
     print_message(&simplerepeated, SimpleRepeated_desc, 0);
     printf("\n");
     print_message(&simpleoneof, SimpleOneof_desc, 0);
+    printf("\n");
+    print_message(&simpleoneof2, SimpleOneof_desc, 0);
     printf("\n");
     print_message(&simpleincluding, SimpleIncluding_desc, 0);
 
@@ -89,6 +97,10 @@ main(int argc, char *argv[])
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
     print_bytes("simpleoneof", buffer, ostream.bytes_written);
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SimpleOneof_fields, &simpleoneof2);
+    print_bytes("simpleoneof2", buffer, ostream.bytes_written);
 
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleIncluding_fields, &simpleincluding);
