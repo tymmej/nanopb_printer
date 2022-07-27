@@ -83,6 +83,10 @@ main(int argc, char *argv[])
     pb_ostream_t ostream;
 
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SingleNumber_fields, &singlenumber);
+    print_bytes("singlenumber", buffer, ostream.bytes_written);
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleMessage1_fields, &simple1);
     print_bytes("simple1", buffer, ostream.bytes_written);
 
