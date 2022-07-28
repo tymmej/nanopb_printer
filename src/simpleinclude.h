@@ -5,4 +5,4 @@
 #include "simpleinclude.pb.h"
 #include "simpleinclude.h"
 
-extern const proto_desc_t SimpleIncluded_desc[];
+extern const nanopb_printer_proto_desc_t SimpleIncluded_desc[];

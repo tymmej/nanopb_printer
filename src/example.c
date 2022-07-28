@@ -1,10 +1,11 @@
-#include <stdio.h>
-
 #include "nanopb_printer.h"
 #include "simple.pb.h"
 #include "simple.h"
 
 #include <pb_encode.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 static void
 print_bytes(const char *name, const uint8_t *buf, size_t len)
@@ -16,25 +17,50 @@ print_bytes(const char *name, const uint8_t *buf, size_t len)
     printf("\"\n");
 }
 
-int
-main(int argc, char *argv[])
+static void
+example_single_number(void)
 {
-
-    (void)argc;
-    (void)argv;
-
     SingleNumber singlenumber = SingleNumber_init_default;
-    SimpleMessage1 simple1 = SimpleMessage1_init_default;
-    SimpleMessage2 simple2 = SimpleMessage2_init_default;
-    SimpleNested simplenested = SimpleNested_init_default;
-    SimpleRepeated simplerepeated = SimpleRepeated_init_default;
-    SimpleOneof simpleoneof = SimpleOneof_init_default;
-    SimpleOneof simpleoneof2 = SimpleOneof_init_default;
-    SimpleIncluding simpleincluding = SimpleIncluding_init_default;
 
     singlenumber.number = 99;
+
+    nanopb_printer_print_message(&singlenumber, SingleNumber_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SingleNumber_size];
+    pb_ostream_t ostream;
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SingleNumber_fields, &singlenumber);
+    print_bytes("singlenumber", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_1(void)
+{
+    SimpleMessage1 simple1 = SimpleMessage1_init_default;
+
     simple1.enum1 = SimpleEnum1_TWO;
     simple1.lucky_number = 42;
+
+    nanopb_printer_print_message(&simple1, SimpleMessage1_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SimpleMessage1_size];
+    pb_ostream_t ostream;
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SimpleMessage1_fields, &simple1);
+    print_bytes("simple1", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_2(void)
+{
+    SimpleMessage2 simple2 = SimpleMessage2_init_default;
+
     simple2.has_lucky_number = true;
     simple2.lucky_number = 23;
     simple2.has_enum1 = true;
@@ -43,76 +69,178 @@ main(int argc, char *argv[])
     simple2.byte.size = 2;
     simple2.byte.bytes[0] = 0xa5;
     simple2.byte.bytes[1] = 0x5a;
+
+    nanopb_printer_print_message(&simple2, SimpleMessage2_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SimpleMessage2_size];
+    pb_ostream_t ostream;
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SimpleMessage2_fields, &simple2);
+    print_bytes("simple2", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_nested(void)
+{
+    SimpleNested simplenested = SimpleNested_init_default;
+
     simplenested.enum1 = SimpleEnum1_ONE;
     simplenested.enum2 = SimpleEnum2_TWOTWO;
+
+    nanopb_printer_print_message(&simplenested, SimpleNested_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SimpleNested_size];
+    pb_ostream_t ostream;
+
+    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&ostream, SimpleNested_fields, &simplenested);
+    print_bytes("simplenested", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_repeated(void)
+{
+    SimpleRepeated simplerepeated = SimpleRepeated_init_default;
+
     simplerepeated.text_count = 2;
     simplerepeated.message_count = 2;
     strcpy(simplerepeated.text[0], "asdf");
     strcpy(simplerepeated.text[1], "zxcv");
     simplerepeated.message[0].unlucky_number = 169;
     simplerepeated.message[1].unlucky_number = 144;
-    simpleoneof.which_oneofmsg = SimpleOneof_unlucky_number_tag;
-    simpleoneof.oneofmsg.unlucky_number = 123;
-    simpleoneof.notnested = 124;
-    simpleoneof2.which_oneofmsg = SimpleOneof_msg1_tag;
-    simpleoneof2.oneofmsg.msg1.enum1 = SimpleEnum1_TWO;
-    simpleoneof2.oneofmsg.msg1.lucky_number = 42;
-    simpleoneof2.oneofmsg.msg1.unlucky_number = 24;
-    simpleoneof2.notnested = 142;
-    simpleincluding.included.enum_inc = SimpleIncludedEnum_EXCLUDED;
 
-    print_message(&singlenumber, SingleNumber_desc, 0);
+    nanopb_printer_print_message(&simplerepeated, SimpleRepeated_desc, 0);
     printf("\n");
-    print_message(&simple1, SimpleMessage1_desc, 0);
-    printf("\n");
-    print_message(&simple2, SimpleMessage2_desc, 0);
-    printf("\n");
-    print_message(&simplenested, SimpleNested_desc, 0);
-    printf("\n");
-    print_message(&simplerepeated, SimpleRepeated_desc, 0);
-    printf("\n");
-    print_message(&simpleoneof, SimpleOneof_desc, 0);
-    printf("\n");
-    print_message(&simpleoneof2, SimpleOneof_desc, 0);
-    printf("\n");
-    print_message(&simpleincluding, SimpleIncluding_desc, 0);
 
-
-    printf("\n");
-    uint8_t buffer[128];
+    uint8_t buffer[SimpleRepeated_size];
     pb_ostream_t ostream;
-
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SingleNumber_fields, &singlenumber);
-    print_bytes("singlenumber", buffer, ostream.bytes_written);
-
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleMessage1_fields, &simple1);
-    print_bytes("simple1", buffer, ostream.bytes_written);
-
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleMessage2_fields, &simple2);
-    print_bytes("simple2", buffer, ostream.bytes_written);
-
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleNested_fields, &simplenested);
-    print_bytes("simplenested", buffer, ostream.bytes_written);
 
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleRepeated_fields, &simplerepeated);
     print_bytes("simplerepeated", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_oneof_1(void)
+{
+    SimpleOneof simpleoneof = SimpleOneof_init_default;
+
+    simpleoneof.which_oneofmsg = SimpleOneof_unlucky_number_tag;
+    simpleoneof.oneofmsg.unlucky_number = 123;
+    simpleoneof.notnested = 124;
+
+    nanopb_printer_print_message(&simpleoneof, SimpleOneof_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SimpleOneof_size];
+    pb_ostream_t ostream;
 
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
     print_bytes("simpleoneof", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_oneof_2(void)
+{
+    SimpleOneof simpleoneof = SimpleOneof_init_default;
+
+    simpleoneof.which_oneofmsg = SimpleOneof_msg1_tag;
+    simpleoneof.oneofmsg.msg1.enum1 = SimpleEnum1_TWO;
+    simpleoneof.oneofmsg.msg1.lucky_number = 42;
+    simpleoneof.oneofmsg.msg1.unlucky_number = 24;
+    simpleoneof.notnested = 142;
+
+    nanopb_printer_print_message(&simpleoneof, SimpleOneof_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SimpleOneof_size];
+    pb_ostream_t ostream;
 
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleOneof_fields, &simpleoneof2);
+    pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
     print_bytes("simpleoneof2", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+static void
+example_simple_including(void)
+{
+    SimpleIncluding simpleincluding = SimpleIncluding_init_default;
+
+    simpleincluding.included.enum_inc = SimpleIncludedEnum_EXCLUDED;
+
+    nanopb_printer_print_message(&simpleincluding, SimpleIncluding_desc, 0);
+    printf("\n");
+
+    uint8_t buffer[SimpleIncluding_size];
+    pb_ostream_t ostream;
 
     ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&ostream, SimpleIncluding_fields, &simpleincluding);
     print_bytes("simpleincluded", buffer, ostream.bytes_written);
+    printf("\n");
+}
+
+typedef void (*example_func_t)(void);
+
+typedef struct {
+    const char *name;
+    example_func_t func;
+} functions_t;
+
+static int
+example_printer(const char *str, void *user_data)
+{
+
+    fprintf((FILE *)user_data, str);
+
+    return printf("%s", str);
+}
+
+int
+main(int argc, char *argv[])
+{
+
+    (void)argc;
+    (void)argv;
+
+    const functions_t example_funcs[] = {
+#define ENTRY_GENERATOR(name) {#name, name}
+        ENTRY_GENERATOR(example_single_number),
+        ENTRY_GENERATOR(example_simple_1),
+        ENTRY_GENERATOR(example_simple_2),
+        ENTRY_GENERATOR(example_simple_nested),
+        ENTRY_GENERATOR(example_simple_repeated),
+        ENTRY_GENERATOR(example_simple_oneof_1),
+        ENTRY_GENERATOR(example_simple_oneof_2),
+        ENTRY_GENERATOR(example_simple_including),
+        ENTRY_GENERATOR(NULL),
+#undef ENTRY_GENERATOR
+    };
+
+    FILE *f = fopen("simple.txt", "w");
+    if (f == NULL)
+    {
+        perror("Error opening file!\n");
+        exit(1);
+    }
+
+    nanopb_printer_register_printer(example_printer, "\t", f);
+
+    for (size_t i = 0; example_funcs[i].func; i++) {
+        printf("Running %s:\n", example_funcs[i].name);
+        (*example_funcs[i].func)();
+    }
+
+    fclose(f);
 
     return 0;
 }

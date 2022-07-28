@@ -18,12 +18,13 @@ _proto_type_to_c = {
     # "TYPE_MESSAGE": ,
     # "TYPE_BYTES": , extra if
     "TYPE_UINT32": "PRIu32",
-    #"TYPE_ENUM": , extra if
+    # "TYPE_ENUM": , extra if
     "TYPE_SFIXED32": "PRId32",
     "TYPE_SFIXED64": "PRId64",
     "TYPE_SINT32": "PRId32",
     "TYPE_SINT64": "PRId64",
 }
+
 
 def field_in_of(field, oneofs):
     for k, v in oneofs.items():
@@ -31,13 +32,16 @@ def field_in_of(field, oneofs):
             return k
     return None
 
-def print_code(text, indent = 0):
+
+def print_code(text, indent=0):
     text = textwrap.dedent(text[1:])
     text = text.splitlines()
-    text = ["\t" * indent + l + "\n" for l in text]
+    text = ["\t" * indent + line + "\n" for line in text]
     return ''.join(text)
 
-def print_field(message, name, field, indent, offset, optional = False, repeated = False, one_of = None, submessage=None):
+
+def print_field(message, name, field, indent, offset, optional=False,
+                repeated=False, one_of=None, submessage=None):
     desc_text = ""
     label = "LABEL_REQUIRED"
     offset_optional = "-1"
@@ -62,32 +66,45 @@ def print_field(message, name, field, indent, offset, optional = False, repeated
         one_of = ""
     if submessage is not None:
         desc_text += print_code("""
-                                {.field = FIELD_MESSAGE, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .message.desc = %s_desc%s},
-                                """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, submessage, oneof_desc), indent)
+                            {.field = FIELD_MESSAGE, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .message.desc = %s_desc%s},
+                            """ % (label, name, message, one_of,
+                                   name, offset_optional, offset_repeated,
+                                   element_size, submessage, oneof_desc),
+                                indent)
         return desc_text
     if field[0] == "TYPE_ENUM":
         desc_text += print_code("""
                             {.field = FIELD_ENUM, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .enum_type.desc = %s_desc%s},
-                            """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, field[2], oneof_desc), indent)
+                            """ % (label, name, message, one_of, name,
+                                   offset_optional, offset_repeated,
+                                   element_size, field[2], oneof_desc),
+                                indent)
     elif field[0] == "TYPE_BYTES":
         desc_text += print_code("""
                             {.field = FIELD_BYTES, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s%s},
-                            """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, oneof_desc), indent)
+                            """ % (label, name, message, one_of, name,
+                                   offset_optional, offset_repeated,
+                                   element_size, oneof_desc),
+                                indent)
     else:
         desc_text += print_code("""
                             {.field = FIELD_NORMAL, .label = %s, .name = "%s", .offset = offsetof(%s, %s%s), .offset_optional = %s, .offset_repeated = %s, .element_size = %s, .format = %s%s},
-                            """ % (label, name, message, one_of, name, offset_optional, offset_repeated, element_size, _proto_type_to_c[field[0]], oneof_desc), indent)
+                            """ % (label, name, message, one_of, name,
+                                   offset_optional, offset_repeated,
+                                   element_size, _proto_type_to_c[field[0]],
+                                   oneof_desc),
+                                indent)
     return desc_text
 
+
 def parse_msg(message):
-    c_text = ""
     h_text = ""
     desc_text = ""
     desc_text += print_code("""
-                            const proto_desc_t %s_desc[] = {
+                            const nanopb_printer_proto_desc_t %s_desc[] = {
                             """ % message[0])
     h_text += print_code("""
-                        extern const proto_desc_t %s_desc[];
+                        extern const nanopb_printer_proto_desc_t %s_desc[];
                         """ % message[0])
 
     oneofs = []
@@ -96,17 +113,24 @@ def parse_msg(message):
         if name == "oneofs_":
             oneofs = field
         elif isinstance(field, module_parser.Repeated):
-            if type(field[0]) is tuple: #repetead field is normal
-                new_desc = print_field(message[0], name, field[0], 2, 1, repeated = True, one_of = None)
+            if type(field[0]) is tuple:  # repetead field is normal
+                new_desc = print_field(message[0], name, field[0], 1, 1,
+                                       repeated=True, one_of=None)
                 desc_text += new_desc
-            else: #repeated field is message
+            else:  # repeated field is message
                 message_name = type(field[0]["field"]).__name__
-                new_desc = print_field(message[0], name, type(field).__name__, 2, 1, repeated = True, submessage=message_name)
+                new_desc = print_field(message[0], name, type(field).__name__,
+                                       1, 1, repeated=True,
+                                       submessage=message_name)
                 desc_text += new_desc
         elif isinstance(field, dict):
             one_of = field_in_of(name, oneofs)
             optional = field["label"] == 'LABEL_OPTIONAL' and one_of is None
-            new_desc = print_field(message[0], name, type(field["field"]).__name__, 2, 1, optional = optional, repeated = False, one_of = one_of, submessage=type(field["field"]).__name__)
+            new_desc = print_field(message[0], name,
+                                   type(field["field"]).__name__,
+                                   1, 1, optional=optional, repeated=False,
+                                   one_of=one_of,
+                                   submessage=type(field["field"]).__name__)
             desc_text += new_desc
         else:
             one_of = field_in_of(name, oneofs)
@@ -114,34 +138,38 @@ def parse_msg(message):
                 print(field)
                 raise Exception("Unknown label")
             elif one_of:
-                new_desc = print_field(message[0], name, field, 2, 1, repeated = False, one_of = one_of)
+                new_desc = print_field(message[0], name, field, 1, 1,
+                                       repeated=False, one_of=one_of)
                 desc_text += new_desc
                 continue
 
-            new_desc = print_field(message[0], name, field, 1, 1, optional = field[1] == 'LABEL_OPTIONAL', repeated = False, one_of = None)
+            new_desc = print_field(message[0], name, field, 1, 1,
+                                   optional=(field[1] == 'LABEL_OPTIONAL'),
+                                   repeated=False, one_of=None)
             desc_text += new_desc
 
     desc_text += print_code("""
-                                {.field = FIELD_LAST},
+                            {.field = FIELD_LAST},
                             };
-                            
-                            """)
+
+                            """, indent=1)
 
     return (desc_text, h_text)
+
 
 def parse_enum(enum):
     c_text = ""
     h_text = ""
     c_text = print_code("""
-                        static const enum_desc_t %s_desc[] = {
+                        static const nanopb_printer_enum_desc_t %s_desc[] = {
                         """ % enum[0])
-    for name, field in enum[1]._asdict().items():
+    for _, field in enum[1]._asdict().items():
         c_text += print_code("""
                             {.idx = %d, .text = \"%s\"},
-                            """ % (field[1], field[0]), indent = 1)
+                            """ % (field[1], field[0]), indent=1)
     c_text += print_code("""
                         {.idx = (pb_size_t)-1}
-                        """, indent = 1)
+                        """, indent=1)
     c_text += print_code("""
                         };
 
@@ -167,9 +195,9 @@ c_text = print_code("""
 
 h_text = print_code("""
                     #pragma once
-                    
+
                     #include <nanopb_printer/nanopb_printer.h>
-                    
+
                     #include "%s.pb.h"
                     #include "%s.h"
 
