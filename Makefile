@@ -1,30 +1,22 @@
-TARGET ?= simple.out
-SRC_DIRS ?= ./src
+ .PHONY: example tests
 
 PROTOS = simple simpleinclude
 
-SRCS := $(shell find $(SRC_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.s")
-SRCS += $(shell find nanopb -maxdepth 2 -name "*.cpp" -or -name "*.c" -or -name "*.s")
-OBJS := $(addsuffix .o,$(basename $(SRCS)))
-DEPS := $(OBJS:.o=.d)
+example:
+	make -C ./example
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d) nanopb
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+tests:
+	make -C ./tests
 
-CPPFLAGS ?= $(INC_FLAGS) -Wall -Wextra -ggdb3 -O0
-
-$(TARGET): $(OBJS)
-	echo $(SRCS)
-	$(CC) $(LDFLAGS) $(OBJS) -o $@ $(LOADLIBES) $(LDLIBS)
-
-.PHONY: clean
 clean:
-	$(RM) $(TARGET) $(OBJS) $(DEPS)
+	make -C ./example clean
+	make -C ./tests clean
+	$(foreach proto,$(PROTOS),rm -f $(proto)_pb2.py;)
+	$(foreach proto,$(PROTOS),rm -f src/$(proto).pb.*;)
+	$(foreach proto,$(PROTOS),rm -f src/$(proto).*;)
 
 proto:
 	$(foreach proto,$(PROTOS),nanopb_generator $(proto).proto;mv $(proto).pb.* ./src;protoc -I=. --python_out=. $(proto).proto;)
 
 parser:
 	$(foreach proto,$(PROTOS),python3 parser.py $(proto);)
-	
--include $(DEPS)

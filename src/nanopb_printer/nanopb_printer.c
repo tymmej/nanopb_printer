@@ -58,7 +58,7 @@ nanopb_printer_print_bytes(const char *name, const uint8_t *buf, size_t len)
     for (size_t i = 0; i < len; i++) {
         nanopb_printer_print_internal("%.02x", buf[i]);
     }
-    nanopb_printer_print_internal("\"\n");
+    nanopb_printer_print_internal("\"");
 }
 
 void

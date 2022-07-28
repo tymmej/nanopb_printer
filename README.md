@@ -106,7 +106,8 @@ Differences:
 
 # Usage
 
+1. `make clean`
 1. `make proto`
 1. `make parser`
-1. `make`
-1. `./simple.out`
+1. `make example && ./example/example`
+1. `make tests && ./tests/tests`

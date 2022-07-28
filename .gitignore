@@ -10,3 +10,6 @@ src/*.pb.*
 __pycache__/*
 
 .vscode/*
+
+example/example
+tests/tests
