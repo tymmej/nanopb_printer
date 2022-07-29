@@ -1,8 +1,8 @@
 #include "common.h"
 
 #include "nanopb_printer.h"
-#include "simple.pb.h"
-#include "simple.h"
+#include "proto/simple.pb.h"
+#include "proto/nanopb_printer_simple.h"
 
 #include <pb_encode.h>
 

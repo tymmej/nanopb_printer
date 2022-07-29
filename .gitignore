@@ -1,5 +1,7 @@
 *.o
-src/*.pb.*
+*.pb.*
+
+src/proto/nanopb_printer_*
 
 *.out
 

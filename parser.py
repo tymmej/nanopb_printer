@@ -178,6 +178,7 @@ def parse_enum(enum):
 
 
 module = sys.argv[1]
+dest_path = sys.argv[2]
 proto = importlib.import_module(module + "_pb2")
 
 included = []
@@ -187,7 +188,7 @@ for attr in attributes:
         included.append(attr.replace("__pb2", ""))
 
 c_text = print_code("""
-                    #include "%s.h"
+                    #include "nanopb_printer_%s.h"
                     #include <inttypes.h>
                     #include <stdio.h>
 
@@ -199,14 +200,14 @@ h_text = print_code("""
                     #include <nanopb_printer/nanopb_printer.h>
 
                     #include "%s.pb.h"
-                    #include "%s.h"
+                    #include "nanopb_printer_%s.h"
 
                     """ % (module, module))
 
 for inc in included:
     h_text += print_code("""
                         #include "%s.pb.h"
-                        #include "%s.h"
+                        #include "nanopb_printer_%s.h"
 
                         """ % (inc, inc))
 
@@ -224,10 +225,10 @@ for message in module_parser.module_msgs(proto).items():
     c_text += new_c
     h_text += new_h
 
-f = open("src/%s.h" % module, "w")
+f = open("{}/nanopb_printer_{}.h".format(dest_path, module), "w")
 f.write(h_text)
 f.close()
 
-f = open("src/%s.c" % module, "w")
+f = open("{}/nanopb_printer_{}.c".format(dest_path, module), "w")
 f.write(c_text)
 f.close()

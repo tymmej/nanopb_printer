@@ -2,7 +2,7 @@
 
 #include "nanopb_printer.h"
 #include "simple.pb.h"
-#include "simple.h"
+#include "nanopb_printer_simple.h"
 
 #include <pb_encode.h>
 
