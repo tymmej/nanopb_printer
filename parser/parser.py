@@ -179,7 +179,7 @@ def parse_enum(enum):
 
 module = sys.argv[1]
 dest_path = sys.argv[2]
-proto = importlib.import_module(module + "_pb2")
+proto = importlib.import_module("{}_pb2".format(module))
 
 included = []
 attributes = dir(proto)

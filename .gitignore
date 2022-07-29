@@ -9,7 +9,7 @@ src/proto/nanopb_printer_*
 
 *.txt
 
-__pycache__/*
+__pycache__
 
 .vscode/*
 
