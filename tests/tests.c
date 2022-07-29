@@ -46,7 +46,7 @@ test_single_number(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_single_number();
+    example_single_number(false);
 
     assert_string_equal(output, expected);
     
@@ -66,7 +66,7 @@ test_simple_1(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_1();
+    example_simple_1(false);
 
     assert_string_equal(output, expected);
     
@@ -86,7 +86,7 @@ test_simple_2(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_2();
+    example_simple_2(false);
 
     assert_string_equal(output, expected);
     
@@ -112,7 +112,7 @@ test_simple_nested(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_nested();
+    example_simple_nested(false);
 
     assert_string_equal(output, expected);
     
@@ -141,7 +141,7 @@ test_simple_repeated(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_repeated();
+    example_simple_repeated(false);
 
     assert_string_equal(output, expected);
     
@@ -160,7 +160,7 @@ test_simple_oneof_1(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_oneof_1();
+    example_simple_oneof_1(false);
 
     assert_string_equal(output, expected);
     
@@ -183,7 +183,7 @@ test_simple_oneof_2(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_oneof_2();
+    example_simple_oneof_2(false);
 
     assert_string_equal(output, expected);
     
@@ -203,7 +203,7 @@ test_simple_including(void **state)
 
     nanopb_printer_register_printer(example_printer, "\t", &output);
 
-    example_simple_including();
+    example_simple_including(false);
 
     assert_string_equal(output, expected);
     

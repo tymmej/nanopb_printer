@@ -20,7 +20,7 @@ print_bytes(const char *name, const uint8_t *buf, size_t len)
 }
 
 void
-example_single_number(void)
+example_single_number(bool print_encoded)
 {
     SingleNumber singlenumber = SingleNumber_init_default;
 
@@ -29,17 +29,19 @@ example_single_number(void)
     nanopb_printer_print_message(&singlenumber, SingleNumber_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SingleNumber_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SingleNumber_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SingleNumber_fields, &singlenumber);
-    print_bytes("singlenumber", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SingleNumber_fields, &singlenumber);
+        print_bytes("singlenumber", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_1(void)
+example_simple_1(bool print_encoded)
 {
     SimpleMessage1 simple1 = SimpleMessage1_init_default;
 
@@ -49,17 +51,19 @@ example_simple_1(void)
     nanopb_printer_print_message(&simple1, SimpleMessage1_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleMessage1_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleMessage1_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleMessage1_fields, &simple1);
-    print_bytes("simple1", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleMessage1_fields, &simple1);
+        print_bytes("simple1", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_2(void)
+example_simple_2(bool print_encoded)
 {
     SimpleMessage2 simple2 = SimpleMessage2_init_default;
 
@@ -75,17 +79,19 @@ example_simple_2(void)
     nanopb_printer_print_message(&simple2, SimpleMessage2_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleMessage2_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleMessage2_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleMessage2_fields, &simple2);
-    print_bytes("simple2", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleMessage2_fields, &simple2);
+        print_bytes("simple2", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_nested(void)
+example_simple_nested(bool print_encoded)
 {
     SimpleNested simplenested = SimpleNested_init_default;
 
@@ -97,17 +103,19 @@ example_simple_nested(void)
     nanopb_printer_print_message(&simplenested, SimpleNested_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleNested_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleNested_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleNested_fields, &simplenested);
-    print_bytes("simplenested", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleNested_fields, &simplenested);
+        print_bytes("simplenested", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_repeated(void)
+example_simple_repeated(bool print_encoded)
 {
     SimpleRepeated simplerepeated = SimpleRepeated_init_default;
 
@@ -121,17 +129,19 @@ example_simple_repeated(void)
     nanopb_printer_print_message(&simplerepeated, SimpleRepeated_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleRepeated_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleRepeated_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleRepeated_fields, &simplerepeated);
-    print_bytes("simplerepeated", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleRepeated_fields, &simplerepeated);
+        print_bytes("simplerepeated", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_oneof_1(void)
+example_simple_oneof_1(bool print_encoded)
 {
     SimpleOneof simpleoneof = SimpleOneof_init_default;
 
@@ -142,17 +152,19 @@ example_simple_oneof_1(void)
     nanopb_printer_print_message(&simpleoneof, SimpleOneof_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleOneof_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleOneof_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
-    print_bytes("simpleoneof", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
+        print_bytes("simpleoneof", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_oneof_2(void)
+example_simple_oneof_2(bool print_encoded)
 {
     SimpleOneof simpleoneof = SimpleOneof_init_default;
 
@@ -165,17 +177,19 @@ example_simple_oneof_2(void)
     nanopb_printer_print_message(&simpleoneof, SimpleOneof_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleOneof_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleOneof_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
-    print_bytes("simpleoneof2", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleOneof_fields, &simpleoneof);
+        print_bytes("simpleoneof2", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }
 
 void
-example_simple_including(void)
+example_simple_including(bool print_encoded)
 {
     SimpleIncluding simpleincluding = SimpleIncluding_init_default;
 
@@ -184,11 +198,13 @@ example_simple_including(void)
     nanopb_printer_print_message(&simpleincluding, SimpleIncluding_desc, 0);
     printf("\n");
 
-    uint8_t buffer[SimpleIncluding_size];
-    pb_ostream_t ostream;
+    if (print_encoded) {
+        uint8_t buffer[SimpleIncluding_size];
+        pb_ostream_t ostream;
 
-    ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&ostream, SimpleIncluding_fields, &simpleincluding);
-    print_bytes("simpleincluded", buffer, ostream.bytes_written);
-    printf("\n");
+        ostream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_encode(&ostream, SimpleIncluding_fields, &simpleincluding);
+        print_bytes("simpleincluded", buffer, ostream.bytes_written);
+        printf("\n");
+    }
 }

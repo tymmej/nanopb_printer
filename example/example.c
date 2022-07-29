@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef void (*example_func_t)(void);
+typedef void (*example_func_t)(bool);
 
 typedef struct {
     const char *name;
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 
     for (size_t i = 0; example_funcs[i].func; i++) {
         printf("Running %s:\n", example_funcs[i].name);
-        (*example_funcs[i].func)();
+        (*example_funcs[i].func)(true);
     }
 
     fclose(f);
